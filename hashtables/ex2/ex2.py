@@ -32,5 +32,4 @@ def reconstruct_trip(tickets, length):
         route[current]=hash_table_retrieve(hashtable,route[current-1])
         current+=1
 
-    
     return route
