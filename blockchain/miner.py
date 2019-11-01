@@ -20,7 +20,6 @@ def proof_of_work(last_proof):
     - Use the same method to generate SHA-256 hashes as the examples in class
     - Note:  We are adding the hash of the last proof to a number/nonce for the new proof
     """
-    print(last_proof)
     previous_hash=hashlib.sha256(f'{last_proof}'.encode()).hexdigest()
     start = timer()
 
@@ -29,6 +28,7 @@ def proof_of_work(last_proof):
     #  TODO: Your code here
     while not valid_proof(previous_hash,proof):
         proof+=3126
+
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
     return proof
 
@@ -42,7 +42,7 @@ def valid_proof(last_hash, proof):
     """
     # TODO: Your code here!
     current_hash = hashlib.sha256(f'{proof}'.encode()).hexdigest()
-    # print(f'current {current_hash[:6]},last {last_hash[-6:]}')
+    
     return last_hash[-6:] == current_hash[:6]
 
 
@@ -67,17 +67,25 @@ if __name__ == '__main__':
     # Run forever until interrupted
     while True:
         # Get the last proof from the server
-        r = requests.get(url=node + "/last_proof")
-        data = r.json()
-        new_proof = proof_of_work(data.get('proof'))
-
+        new_proof=None
+        while not new_proof:
+            try:
+                r = requests.get(url=node + "/last_proof")
+                data = r.json()
+                new_proof = proof_of_work(data.get('proof'))
+            except:
+                pass
         post_data = {"proof": new_proof,
                      "id": id}
 
         r = requests.post(url=node + "/mine", json=post_data)
-        data = r.json()
-        if data.get('message') == 'New Block Forged':
-            coins_mined += 1
-            print("Total coins mined: " + str(coins_mined))
-        else:
-            print(data.get('message'))
+        try:
+            data = r.json()
+            if data.get('message') == 'New Block Forged':
+                coins_mined += 1
+                print("Total coins mined: " + str(coins_mined))
+            else:
+                print(data.get('message'))
+        except ValueError as err:
+            print(err)
+            print(r)
