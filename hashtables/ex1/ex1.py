@@ -23,7 +23,6 @@ def get_indices_of_item_weights(weights, length, limit):
         needed = limit-weight
         if hash_table_retrieve(ht, needed):
             if weight>needed:
-                print((index,hash_table_retrieve(ht,needed)),weight,needed,limit)
                 return (index,hash_table_retrieve(ht,needed))
             else:
                 return (hash_table_retrieve(ht, needed),index)
